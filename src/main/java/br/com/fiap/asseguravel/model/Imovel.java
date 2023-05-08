@@ -1,24 +1,61 @@
 package br.com.fiap.asseguravel.model;
 
 import br.com.fiap.pessoa.model.Pessoa;
+import jakarta.persistence.*;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+@Entity
+@Table(name = "TB_IMOVEL", uniqueConstraints = {
+
+        @UniqueConstraint(name = "UK_IMOVEL", columnNames = "NR_REGISTRO")
+})
 public class Imovel {
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_IMOVEL")
+    @SequenceGenerator(
+            name = "SQ_IMOVEL",
+            sequenceName = "SQ_IMOVEL",
+            allocationSize = 1,
+            initialValue = 1)
+    @Column(name = "ID_IMOVEL")
     private Long id;
 
+    @Column(name = "NR_QUARTOS")
     private int qtdQuartos;
 
+    @Column(name = "NR_BANHEIROS")
     private int qtdBanheiros;
 
+    @Column(name = "NR_VAGAS")
     private int qtdVagasDeGaragem;
 
+    @Column(name = "NR_REGISTRO")
     private String numeroRegistroNoCartorio;
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "TB_PROPRIETARIOS",
+                //A Própria classe. Imóvel (Primeiro eu! Depois as dividas!!!)
+            joinColumns = {
+                    @JoinColumn(
+                            name = "ID_IMOVEL",
+                            referencedColumnName = "ID_IMOVEL",
+                            foreignKey = @ForeignKey(name = "FK_PROP_IMOVEL")
+                    )
+            },
+            //A Outra classe. Pessoa (Olha lá em baixo o tipo)
+            inverseJoinColumns = {
+                  @JoinColumn(
+                          name = "ID_PROPRIETARIO",
+                          referencedColumnName = "ID_PESSOA",
+                          foreignKey = @ForeignKey(name = "FK_PROP_PESSOA")
+                  )
+            }
+    )
     protected Set<Pessoa> proprietarios = new LinkedHashSet<>();
 
 
