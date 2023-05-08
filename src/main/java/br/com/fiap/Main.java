@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("oracle");
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("maria-db");
         EntityManager manager = factory.createEntityManager();
 
 
@@ -57,7 +57,8 @@ public class Main {
         var veiculo = new Veiculo();
         veiculo.setChassis(geraChassis())
                 .setFabricante("FIAP")
-                .setModelo("BRAVO")
+                .setPlaca("FIK" + new Random().nextInt(9999))
+                .setModelo("PUNTO")
                 .setAnoDeFabricacao(2023)
                 .setProprietario(bruno);
 
@@ -78,6 +79,8 @@ public class Main {
                 .setQtdQuartos(3)
                 .setQtdVagasDeGaragem(2)
                 .setNumeroRegistroNoCartorio(String.valueOf(new Random().nextLong(999999999)));
+
+        imovel.addProprietario(bene).addProprietario(esposa).addProprietario(bruno);
 
         var sr = new SeguroResidencial();
         sr.setObjeto(imovel)
@@ -116,12 +119,31 @@ public class Main {
         }
 
         //Métodos para consultar aqui:
+        // findAll(manager);
 
-        seguros.forEach(System.out::println);
+        findByID(manager);
 
         manager.close();
         factory.close();
 
+    }
+
+    private static void findByID(EntityManager manager) {
+        Long id = Long.valueOf(JOptionPane.showInputDialog("Informe o ID do Seguro que deseja consultar"));
+        Seguro seguro = manager.find(Seguro.class, id);
+
+        if (seguro != null) {
+            System.out.println(seguro);
+        } else {
+            JOptionPane.showMessageDialog(null, "Não encontramos Seguro com o ID: " + id);
+        }
+
+    }
+
+    private static void findAll(EntityManager manager) {
+        var hql = "FROM Seguro";
+        List list = manager.createQuery(hql).getResultList();
+        list.forEach(System.out::println);
     }
 
     private static String geraCpf() {
