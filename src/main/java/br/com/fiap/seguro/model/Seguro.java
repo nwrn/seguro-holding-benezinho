@@ -1,21 +1,67 @@
 package br.com.fiap.seguro.model;
 
 import br.com.fiap.pessoa.model.Pessoa;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+@Entity
+@Table(
+        name = "TB_Seguro")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "TP_Seguro")
 public abstract class Seguro {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_Seguro")
+    @SequenceGenerator(name = "SQ_Seguro", sequenceName = "SQ_Seguro")
+    @Column(name = "ID_Seguro")
     private Long id;
+    @Column(name = "DT_InicioVigencia")
     private LocalDate inicioVigencia;
+    @Column(name = "DT_FimVigencia")
     private LocalDate fimVigencia;
+
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_Pessoa",
+            referencedColumnName = "ID_Pessoa",
+            foreignKey = @ForeignKey(name = "FK_Pessoa_Seguro",
+                    value = ConstraintMode.CONSTRAINT))
     private Pessoa contratante;
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_Corretor",
+            referencedColumnName = "ID_Corretor",
+            foreignKey = @ForeignKey(name = "FK_Corretor",
+                    value = ConstraintMode.CONSTRAINT))
     private Corretor corretor;
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "TB_Beneficiario",
+            joinColumns = {
+                    @JoinColumn(
+                            name = "ID_Pessoa",
+                            referencedColumnName = "ID_Seguro",
+                            foreignKey = @ForeignKey(name = "FK_Beneficiario_Seguro")
+                    )
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "ID_Seguro",
+                            referencedColumnName = "ID_Pessoa",
+                            foreignKey = @ForeignKey(name = "FK_Seguro_Beneficiario")
+                    )
+            }
+    )
     private Set<Pessoa> beneficiarios = new LinkedHashSet<>();
+
+
 
     public Seguro() {
     }

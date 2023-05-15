@@ -1,21 +1,46 @@
 package br.com.fiap.asseguravel.model;
 
 import br.com.fiap.pessoa.model.Pessoa;
+import jakarta.persistence.*;
 
+@Entity
+@Table(
+        name = "TB_Veiculo",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "UK_Chassi",
+                        columnNames = "NR_Chassi"),
+                @UniqueConstraint(name = "UK_Placa",
+                            columnNames = "NR_Placa")
+        })
 public class Veiculo {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_Veiculo")
+    @SequenceGenerator(name = "SQ_Veiculo", sequenceName = "SQ_Veiculo")
+    @Column(name = "ID_Veiculo")
     private Long id;
 
+    @Column(name = "NR_Chassi")
     private String chassis;
 
+    @Column(name = "NR_Placa")
     private String placa;
 
+    @Column(name = "NM_Modelo")
     private String modelo;
 
+    @Column(name = "DT_Fabricacao")
     private int anoDeFabricacao;
 
+    @Column(name = "NM_Fabricante")
     private String fabricante;
 
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+                fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_Pessoa",
+            referencedColumnName = "ID_Pessoa",
+                foreignKey = @ForeignKey(name = "FK_Proprietario_Veiculo",
+                                    value = ConstraintMode.CONSTRAINT))
     private Pessoa proprietario;
 
     public Veiculo() {
