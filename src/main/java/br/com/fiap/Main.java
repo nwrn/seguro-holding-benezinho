@@ -6,6 +6,7 @@ import br.com.fiap.pessoa.model.PessoaFisica;
 import br.com.fiap.pessoa.model.PessoaJuridica;
 import br.com.fiap.pessoa.model.Sexo;
 import br.com.fiap.seguro.model.*;
+import br.com.fiap.seguro.repository.SeguroRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -71,7 +72,6 @@ public class Main {
                 .setCorretor(corretor)
                 .setInicioVigencia(LocalDate.now())
                 .setFimVigencia(LocalDate.now().plusYears(1));
-        sv.addBeneficiario(bruno);
 
         var imovel = new Imovel();
         imovel.setQtdBanheiros(3)
@@ -85,7 +85,6 @@ public class Main {
                 .setCorretor(corretor)
                 .setInicioVigencia(LocalDate.now())
                 .setFimVigencia(LocalDate.now().plusYears(1));
-        sr.addBeneficiario(bene);
 
         var svida = new SeguroVida();
         svida.setObjeto(esposa)
@@ -93,7 +92,7 @@ public class Main {
                 .setCorretor(corretor)
                 .setInicioVigencia(LocalDate.now())
                 .setFimVigencia(LocalDate.now().plusYears(1));
-        sv.addBeneficiario(bene);
+
 
         List<Seguro> seguros = Arrays.asList(svida, sv, sr);
 
@@ -101,14 +100,22 @@ public class Main {
             manager.getTransaction().begin();
             seguros.forEach(manager::persist);
             manager.getTransaction().commit();
+            Long IdSeguro = Long.getLong(JOptionPane.showInputDialog("Digite o Id de Seguro para ser consultado"));
+            try {
+                SeguroRepository.findAll();
+            }catch (Exception e){e.getMessage();}
+            try {
+                SeguroRepository.findById(IdSeguro);
+            }catch (Exception e){e.getMessage();}
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
                     """
-                            Erro na persistência! 
-                                        
-                            Confira se todas as classes estão anotadas corretamente!
-                                        
-                            veja detalhes no console..."""
+                                    Erro na persistência! 
+                                                
+                                    Confira se todas as classes estão anotadas corretamente!
+                                                
+                                    veja detalhes no console..."""
 
             );
             e.printStackTrace();
@@ -118,11 +125,13 @@ public class Main {
         //Métodos para consultar aqui:
 
         seguros.forEach(System.out::println);
-
         manager.close();
         factory.close();
 
     }
+
+
+
 
     private static String geraCpf() {
         var sorteio = new Random();

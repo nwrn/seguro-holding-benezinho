@@ -1,13 +1,33 @@
 package br.com.fiap.seguro.model;
 
 import br.com.fiap.pessoa.model.Pessoa;
+import jakarta.persistence.*;
 
+
+@Entity
+@Table(
+        name = "TB_Corretor",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "UK_SUSEP",
+                        columnNames = "NR_SUSEP")
+        })
 public class Corretor {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_Corretor")
+    @SequenceGenerator(name = "SQ_Corretor", sequenceName = "SQ_Corretor")
+    @Column(name = "ID_Corretor")
     private Long id;
 
+    @Column(name = "NR_SUSEP")
     private String numeroSUSEP;
 
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    @JoinColumn(name = "ID_Pessoa",
+            referencedColumnName = "ID_Pessoa",
+            foreignKey = @ForeignKey(name = "FK_Pessoa_Corretor",
+                    value = ConstraintMode.CONSTRAINT))
     private Pessoa pessoa;
 
 
